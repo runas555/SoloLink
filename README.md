@@ -1,6 +1,6 @@
-# Session365 — Micro-CRM & Auto-Localizing Scheduler for Solopreneurs
+# SoloLink — Micro-CRM & Auto-Localizing Scheduler for Solopreneurs
 
-Session365 is a lightweight, high-performance, and serverless-ready Micro-CRM designed for beauty masters, tutors, coaches, and private practitioners. It replaces messenger chaos with a beautiful, fast, and responsive online scheduling funnel and a dedicated practitioner dashboard.
+SoloLink is a lightweight, high-performance, and serverless-ready Micro-CRM designed for beauty masters, tutors, coaches, and private practitioners. It replaces messenger chaos with a beautiful, fast, and responsive online scheduling funnel and a dedicated practitioner dashboard.
 
 The project is built on top of a modern **Next.js 14 App Router** architecture, optimized for serverless cold-starts, zero-configuration cross-platform builds, and dynamic browser-locale translation.
 
