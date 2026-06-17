@@ -13,7 +13,7 @@ export default function HomePage() {
       {/* Шапка */}
       <header className="py-6 px-6 md:px-12">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          {/* Логотип с правильной иконкой-календарем */}
+          {/* Логотип */}
           <div className="flex items-center space-x-2 text-[#2d2722]">
             <span className="font-serif text-2xl font-bold tracking-tight">{t('brand')}</span>
             <svg className="w-6 h-6 text-[#2d2722] opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -37,9 +37,10 @@ export default function HomePage() {
               {t('login')}
             </Link>
             
+            {/* Кнопка в хедере в виде мягкого асимметричного камушка */}
             <Link 
               href="/register" 
-              className="stone-shadow-slate bg-[#5f6d7a] hover:bg-[#525f6b] text-white py-2 px-5 rounded-[22px_10px_18px_12px_/_12px_18px_10px_22px] transition duration-300 text-sm font-medium"
+              className="stone-shadow-slate bg-[#5f6d7a] hover:bg-[#525f6b] text-white py-2.5 px-6 rounded-[30px_16px_24px_18px_/_18px_24px_16px_30px] transition duration-300 text-sm font-medium"
             >
               {t('startFree')}
             </Link>
@@ -61,7 +62,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
             <Link 
               href="/register" 
-              className="stone-shadow-beige w-full sm:w-auto bg-[#c7beaf] text-[#2d2722] font-semibold py-3.5 px-8 rounded-[35px_15px_40px_15px_/_18px_35px_18px_35px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 border border-[#bfae9e] border-opacity-30"
+              className="stone-shadow-beige w-full sm:w-auto bg-[#c7beaf] text-[#2d2722] font-semibold py-3.5 px-8 rounded-[40px_25px_45px_28px_/_28px_45px_25px_40px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 border border-[#bfae9e] border-opacity-30"
             >
               <span>{t('createCalendar')}</span>
               <ArrowRight className="w-4 h-4 stroke-[2]" />
@@ -69,7 +70,7 @@ export default function HomePage() {
             
             <Link 
               href="/login" 
-              className="stone-shadow-terracotta w-full sm:w-auto bg-[#b9745d] text-white font-semibold py-3.5 px-8 rounded-[18px_38px_15px_35px_/_30px_18px_35px_18px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center border border-[#a85945] border-opacity-30"
+              className="stone-shadow-terracotta w-full sm:w-auto bg-[#b9745d] text-white font-semibold py-3.5 px-8 rounded-[25px_40px_28px_45px_/_45px_28px_40px_25px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center border border-[#a85945] border-opacity-30"
             >
               {t('haveAccount')}
             </Link>
@@ -77,7 +78,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Кому помогает наша CRM (Красивые 3D-камни на виду) */}
+      {/* Кому помогает наша CRM (3D-камни на виду) */}
       <section className="py-12 max-w-5xl mx-auto px-4 w-full">
         <h2 className="font-serif text-2xl md:text-3xl text-center text-[#2d2722] mb-12 font-normal">
           {t('whoIsItFor')}

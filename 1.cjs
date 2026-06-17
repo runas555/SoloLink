@@ -1,70 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const GLOBALS_CSS_PATH = path.join(process.cwd(), 'src', 'app', 'globals.css');
 const PAGE_TSX_PATH = path.join(process.cwd(), 'src', 'app', 'page.tsx');
-
-function patchGlobals() {
-  if (!fs.existsSync(GLOBALS_CSS_PATH)) {
-    console.log(`[ОШИБКА] Файл не найден: ${GLOBALS_CSS_PATH}`);
-    return;
-  }
-
-  let content = fs.readFileSync(GLOBALS_CSS_PATH, 'utf8');
-
-  // Добавляем стили 3D-объема для камней, если их еще нет
-  if (content.includes('stone-shadow-beige')) {
-    console.log(`[ПРОПУЩЕНО] globals.css уже содержит 3D-эффекты.`);
-    return;
-  }
-
-  // Обновляем body и добавляем классы claymorphism-эффектов
-  const bodyRegex = /body\s*\{[\s\S]*?\}/;
-  const updatedStyles = `body {
-  background-color: #f3ebe1;
-  background-image: url('/bg-sand.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  color: #2d2722;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* 3D Эффект органических камней (внутренние блики + мягкие тени) */
-.stone-shadow-beige {
-  box-shadow: 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.6),
-    inset -3px -3px 6px rgba(0, 0, 0, 0.1),
-    0 10px 20px rgba(45, 39, 34, 0.12);
-}
-
-.stone-shadow-terracotta {
-  box-shadow: 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.4),
-    inset -3px -3px 6px rgba(0, 0, 0, 0.25),
-    0 10px 20px rgba(189, 110, 89, 0.25);
-}
-
-.stone-shadow-slate {
-  box-shadow: 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.25),
-    inset -3px -3px 6px rgba(0, 0, 0, 0.3),
-    0 10px 20px rgba(95, 109, 122, 0.25);
-}
-
-.stone-shadow-moss {
-  box-shadow: 
-    inset 3px 3px 6px rgba(255, 255, 255, 0.5),
-    inset -3px -3px 6px rgba(0, 0, 0, 0.15),
-    0 10px 20px rgba(175, 191, 166, 0.2);
-}`;
-
-  content = content.replace(bodyRegex, updatedStyles);
-  fs.writeFileSync(GLOBALS_CSS_PATH, content, 'utf8');
-  console.log(`[УСПЕШНО] В globals.css интегрированы 3D-эффекты глины/камня.`);
-}
 
 function patchPage() {
   if (!fs.existsSync(PAGE_TSX_PATH)) {
@@ -72,8 +9,7 @@ function patchPage() {
     return;
   }
 
-  // Полное обновление структуры разметки под скриншот-оригинал
-  const newPageCode = `"use client";
+  const updatedPageCode = `"use client";
 
 import Link from 'next/link';
 import React from 'react';
@@ -88,7 +24,7 @@ export default function HomePage() {
       {/* Шапка */}
       <header className="py-6 px-6 md:px-12">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          {/* Логотип с правильной иконкой-календарем */}
+          {/* Логотип */}
           <div className="flex items-center space-x-2 text-[#2d2722]">
             <span className="font-serif text-2xl font-bold tracking-tight">{t('brand')}</span>
             <svg className="w-6 h-6 text-[#2d2722] opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -112,9 +48,10 @@ export default function HomePage() {
               {t('login')}
             </Link>
             
+            {/* Кнопка в хедере в виде мягкого асимметричного камушка */}
             <Link 
               href="/register" 
-              className="stone-shadow-slate bg-[#5f6d7a] hover:bg-[#525f6b] text-white py-2 px-5 rounded-[22px_10px_18px_12px_/_12px_18px_10px_22px] transition duration-300 text-sm font-medium"
+              className="stone-shadow-slate bg-[#5f6d7a] hover:bg-[#525f6b] text-white py-2.5 px-6 rounded-[30px_16px_24px_18px_/_18px_24px_16px_30px] transition duration-300 text-sm font-medium"
             >
               {t('startFree')}
             </Link>
@@ -136,7 +73,7 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
             <Link 
               href="/register" 
-              className="stone-shadow-beige w-full sm:w-auto bg-[#c7beaf] text-[#2d2722] font-semibold py-3.5 px-8 rounded-[35px_15px_40px_15px_/_18px_35px_18px_35px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 border border-[#bfae9e] border-opacity-30"
+              className="stone-shadow-beige w-full sm:w-auto bg-[#c7beaf] text-[#2d2722] font-semibold py-3.5 px-8 rounded-[40px_25px_45px_28px_/_28px_45px_25px_40px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 border border-[#bfae9e] border-opacity-30"
             >
               <span>{t('createCalendar')}</span>
               <ArrowRight className="w-4 h-4 stroke-[2]" />
@@ -144,7 +81,7 @@ export default function HomePage() {
             
             <Link 
               href="/login" 
-              className="stone-shadow-terracotta w-full sm:w-auto bg-[#b9745d] text-white font-semibold py-3.5 px-8 rounded-[18px_38px_15px_35px_/_30px_18px_35px_18px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center border border-[#a85945] border-opacity-30"
+              className="stone-shadow-terracotta w-full sm:w-auto bg-[#b9745d] text-white font-semibold py-3.5 px-8 rounded-[25px_40px_28px_45px_/_45px_28px_40px_25px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center border border-[#a85945] border-opacity-30"
             >
               {t('haveAccount')}
             </Link>
@@ -152,7 +89,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Кому помогает наша CRM (Красивые 3D-камни на виду) */}
+      {/* Кому помогает наша CRM (3D-камни на виду) */}
       <section className="py-12 max-w-5xl mx-auto px-4 w-full">
         <h2 className="font-serif text-2xl md:text-3xl text-center text-[#2d2722] mb-12 font-normal">
           {t('whoIsItFor')}
@@ -203,13 +140,12 @@ export default function HomePage() {
   );
 }`;
 
-  fs.writeFileSync(PAGE_TSX_PATH, newPageCode, 'utf8');
-  console.log(`[УСПЕШНО] Шаблон page.tsx обновлен. Камни получили 3D-объем и точные пропорции.`);
+  fs.writeFileSync(PAGE_TSX_PATH, updatedPageCode, 'utf8');
+  console.log(`[УСПЕШНО] Кнопка в хедере также обновлена до формы плавного камня.`);
 }
 
-console.log('--- Накатывание точных визуальных исправлений (без бэкапов) ---');
+console.log('--- Начало применения финального сглаживания в хедере ---');
 try {
-  patchGlobals();
   patchPage();
 } catch (err) {
   console.error(`[ОШИБКА ПРИМЕНЕНИЯ]: ${err.message}`);
