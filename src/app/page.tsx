@@ -2,85 +2,128 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { Calendar, UserCheck, Clock, Award, ArrowRight } from 'lucide-react';
+import { UserCheck, Clock, Award, ArrowRight, Globe } from 'lucide-react';
 import { useLanguage, LanguageSwitcher } from '@/lib/i18n';
 
 export default function HomePage() {
   const { t } = useLanguage();
 
   return (
-    <div className="bg-white">
+    <div className="min-h-screen flex flex-col justify-between pb-12">
       {/* Шапка */}
-      <header className="border-b border-gray-100 py-5">
-        <div className="max-w-6xl mx-auto px-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <Calendar className="w-8 h-8 text-indigo-600" />
-            <span className="font-extrabold text-xl tracking-tight text-gray-900">{t('brand')}</span>
+      <header className="py-6 px-6 md:px-12">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          {/* Логотип с правильной иконкой-календарем */}
+          <div className="flex items-center space-x-2 text-[#2d2722]">
+            <span className="font-serif text-2xl font-bold tracking-tight">{t('brand')}</span>
+            <svg className="w-6 h-6 text-[#2d2722] opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="4" width="18" height="16" rx="3" />
+              <line x1="16" y1="2" x2="16" y2="5" />
+              <line x1="8" y1="2" x2="8" y2="5" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <circle cx="12" cy="15" r="1.5" fill="currentColor" />
+            </svg>
           </div>
-          <div className="flex items-center space-x-4">
-            <LanguageSwitcher />
-            <Link href="/login" className="text-gray-600 hover:text-indigo-600 font-medium transition text-sm">
+
+          {/* Навигация */}
+          <div className="flex items-center space-x-6">
+            {/* Стилизованная капсула языка */}
+            <div className="flex items-center space-x-1.5 bg-white/70 border border-gray-300/60 py-1 px-3.5 rounded-full shadow-sm text-[#2d2722] hover:bg-white transition duration-200">
+              <Globe className="w-4 h-4 stroke-[1.5] text-gray-600" />
+              <LanguageSwitcher />
+            </div>
+            
+            <Link href="/login" className="text-[#2d2722] hover:opacity-80 font-medium transition text-sm">
               {t('login')}
             </Link>
-            <Link href="/register" className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg transition text-sm">
+            
+            <Link 
+              href="/register" 
+              className="stone-shadow-slate bg-[#5f6d7a] hover:bg-[#525f6b] text-white py-2 px-5 rounded-[22px_10px_18px_12px_/_12px_18px_10px_22px] transition duration-300 text-sm font-medium"
+            >
               {t('startFree')}
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="py-20 bg-gradient-to-br from-indigo-50 via-white to-gray-50">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight mb-6">
+      {/* Hero Секция */}
+      <section className="py-8 md:py-16 flex-grow flex items-center">
+        <div className="max-w-4xl mx-auto px-4 text-center w-full">
+          <h1 className="font-serif text-4xl md:text-5xl text-[#2d2722] leading-[1.25] tracking-normal mb-6 font-normal">
             {t('heroTitle')}
           </h1>
-          <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-[#5a524c] text-sm md:text-base max-w-2xl mx-auto mb-10 leading-relaxed font-light">
             {t('heroSub')}
           </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-            <Link href="/register" className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-lg shadow-indigo-200 transition flex items-center justify-center space-x-2">
+          
+          {/* Интерактивные 3D-кнопки */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-6">
+            <Link 
+              href="/register" 
+              className="stone-shadow-beige w-full sm:w-auto bg-[#c7beaf] text-[#2d2722] font-semibold py-3.5 px-8 rounded-[35px_15px_40px_15px_/_18px_35px_18px_35px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center space-x-2 border border-[#bfae9e] border-opacity-30"
+            >
               <span>{t('createCalendar')}</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 stroke-[2]" />
             </Link>
-            <Link href="/login" className="w-full sm:w-auto bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold py-3.5 px-8 rounded-xl transition">
+            
+            <Link 
+              href="/login" 
+              className="stone-shadow-terracotta w-full sm:w-auto bg-[#b9745d] text-white font-semibold py-3.5 px-8 rounded-[18px_38px_15px_35px_/_30px_18px_35px_18px] hover:scale-[1.02] transition-all duration-300 flex items-center justify-center border border-[#a85945] border-opacity-30"
+            >
               {t('haveAccount')}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Кому подходит */}
-      <section className="py-16 max-w-5xl mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-12">{t('whoIsItFor')}</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-            <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mb-4">
-              <UserCheck className="w-6 h-6" />
+      {/* Кому помогает наша CRM (Красивые 3D-камни на виду) */}
+      <section className="py-12 max-w-5xl mx-auto px-4 w-full">
+        <h2 className="font-serif text-2xl md:text-3xl text-center text-[#2d2722] mb-12 font-normal">
+          {t('whoIsItFor')}
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 justify-items-center">
+          {/* Бьюти-мастера */}
+          <div className="flex flex-col items-center text-center max-w-[240px]">
+            <div className="stone-shadow-moss w-44 h-36 bg-[#b7c2b0] rounded-[65%_35%_60%_40%_/_50%_60%_40%_50%] flex items-center justify-center text-[#2d2722] hover:scale-105 transition-all duration-300">
+              <UserCheck className="w-12 h-12 stroke-[1.2] text-[#2d2722] opacity-80" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('beautyMasters')}</h3>
-            <p className="text-gray-600 text-sm">{t('beautyDesc')}</p>
+            <h3 className="font-serif text-[#2d2722] text-lg font-medium mt-4 mb-2">
+              {t('beautyMasters')}
+            </h3>
+            <p className="text-xs text-[#5a524c] leading-relaxed font-light">
+              {t('beautyDesc')}
+            </p>
           </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mb-4">
-              <Clock className="w-6 h-6" />
+
+          {/* Репетиторы */}
+          <div className="flex flex-col items-center text-center max-w-[240px]">
+            <div className="stone-shadow-beige w-44 h-36 bg-[#d9d0c1] rounded-[45%_55%_50%_50%_/_60%_40%_60%_40%] flex items-center justify-center text-[#2d2722] hover:scale-105 transition-all duration-300">
+              <Clock className="w-12 h-12 stroke-[1.2] text-[#2d2722] opacity-80" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('tutors')}</h3>
-            <p className="text-gray-600 text-sm">{t('tutorsDesc')}</p>
+            <h3 className="font-serif text-[#2d2722] text-lg font-medium mt-4 mb-2">
+              {t('tutors')}
+            </h3>
+            <p className="text-xs text-[#5a524c] leading-relaxed font-light">
+              {t('tutorsDesc')}
+            </p>
           </div>
-          <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition">
-            <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600 mb-4">
-              <Award className="w-6 h-6" />
+
+          {/* Коучи */}
+          <div className="flex flex-col items-center text-center max-w-[240px]">
+            <div className="stone-shadow-slate w-44 h-36 bg-[#5f6d7a] rounded-[50%_50%_65%_35%_/_45%_55%_45%_55%] flex items-center justify-center text-white hover:scale-105 transition-all duration-300">
+              <Award className="w-12 h-12 stroke-[1.2] text-white opacity-90" />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">{t('coaches')}</h3>
-            <p className="text-gray-600 text-sm">{t('coachesDesc')}</p>
+            <h3 className="font-serif text-[#2d2722] text-lg font-medium mt-4 mb-2">
+              {t('coaches')}
+            </h3>
+            <p className="text-xs text-[#5a524c] leading-relaxed font-light">
+              {t('coachesDesc')}
+            </p>
           </div>
         </div>
       </section>
-
-      <footer className="border-t border-gray-100 py-8 bg-gray-50 text-center">
-        <p className="text-gray-500 text-sm">{t('footer')}</p>
-      </footer>
     </div>
   );
 }
