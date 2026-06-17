@@ -1,134 +1,100 @@
-/**
- * Скрипт автоматической принудительной инициализации таблиц БД (v8)
- */
-
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
-
-const filePath = path.resolve('scripts/init-db.js');
-
-console.log('=== ЗАПУСК ПАТЧА V8: ИНИЦИАЛИЗАЦИЯ ТАБЛИЦ БАЗЫ ДАННЫХ ===');
-
-// Исправленный скрипт инициализации с автоматическим парсингом .env
-const initDbContent = `const { createClient } = require('@libsql/client');
 const fs = require('fs');
 const path = require('path');
 
-// Нативный парсинг и загрузка .env файла
-const envPath = path.resolve('.env');
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, 'utf8');
-  envContent.split('\\n').forEach(line => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) return;
-    const [key, ...valueParts] = trimmed.split('=');
-    if (key && valueParts.length > 0) {
-      const value = valueParts.join('=').trim();
-      // Убираем кавычки, если они есть
-      const cleanValue = value.replace(/^["']|["']$/g, '');
-      process.env[key.trim()] = cleanValue;
-    }
+// Пути к файлам
+const DB_INDEX_PATH = path.join(process.cwd(), 'src', 'db', 'index.ts');
+const VERCEL_JSON_PATH = path.join(process.cwd(), 'vercel.json');
+
+// Функция создания бэкапа (избегаем расширения .bak согласно правилам)
+function createBackup(filePath) {
+  if (fs.existsSync(filePath)) {
+    const backupPath = filePath + '.original';
+    fs.copyFileSync(filePath, backupPath);
+  }
+}
+
+function patchDbIndex() {
+  if (!fs.existsSync(DB_INDEX_PATH)) {
+    console.log(`[ОШИБКА] Файл не найден: ${DB_INDEX_PATH}`);
+    return;
+  }
+
+  let content = fs.readFileSync(DB_INDEX_PATH, 'utf8');
+
+  // Логика исключения: если патч уже применялся, пропускаем
+  if (content.includes('globalThis') || content.includes('globalForDb')) {
+    console.log(`[ПРОПУЩЕНО] Файл src/db/index.ts уже содержит Singleton-патч.`);
+    return;
+  }
+
+  // Гибкий якорь для поиска экспорта (игнорирует пробелы, табы, комментарии)
+  const anchorRegex = /export\s+const\s+client\s*=\s*createClient\s*\(\s*\{[\s\S]*?\}\s*\)\s*;?/m;
+  
+  if (!anchorRegex.test(content)) {
+    console.log(`[ОШИБКА] Якорь "export const client = createClient..." не найден в src/db/index.ts`);
+    return;
+  }
+
+  // Новый код с паттерном Singleton
+  const replacementText = `const createDbClient = () => {
+  return createClient({
+    url: process.env.DATABASE_URL || 'file:local.db',
+    authToken: process.env.DATABASE_AUTH_TOKEN,
   });
-  console.log('Файл .env успешно загружен для миграции.');
+};
+
+const globalForDb = globalThis as unknown as {
+  client: ReturnType<typeof createDbClient> | undefined;
+};
+
+export const client = globalForDb.client ?? createDbClient();
+
+if (process.env.NODE_ENV !== 'production') globalForDb.client = client;`;
+
+  // Выполняем автозамену
+  content = content.replace(anchorRegex, replacementText);
+
+  // Сохраняем результат
+  createBackup(DB_INDEX_PATH);
+  fs.writeFileSync(DB_INDEX_PATH, content, 'utf8');
+  console.log(`[УСПЕШНО] Внедрен Singleton-патч в src/db/index.ts`);
 }
 
-const client = createClient({
-  url: process.env.DATABASE_URL || 'file:local.db',
-  authToken: process.env.DATABASE_AUTH_TOKEN,
-});
+function patchVercelJson() {
+  if (fs.existsSync(VERCEL_JSON_PATH)) {
+    try {
+      let content = fs.readFileSync(VERCEL_JSON_PATH, 'utf8');
+      let json = JSON.parse(content);
 
-async function main() {
-  console.log('Инициализация таблиц базы данных по адресу:', process.env.DATABASE_URL || 'file:local.db');
-  try {
-    await client.execute(\`
-      CREATE TABLE IF NOT EXISTS users (
-        id TEXT PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        name TEXT NOT NULL,
-        business_name TEXT NOT NULL,
-        timezone TEXT NOT NULL DEFAULT 'UTC',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-      );
-    \`);
-    console.log('- Таблица "users" создана.');
+      // Логика исключения: если регион уже проставлен, пропускаем
+      if (json.regions && json.regions.includes('dub1')) {
+        console.log(`[ПРОПУЩЕНО] Файл vercel.json уже настроен на регион 'dub1' (Европа/Ирландия).`);
+        return;
+      }
 
-    await client.execute(\`
-      CREATE TABLE IF NOT EXISTS services (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        name TEXT NOT NULL,
-        duration_minutes INTEGER NOT NULL,
-        price REAL NOT NULL,
-        description TEXT,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-      );
-    \`);
-    console.log('- Таблица "services" создана.');
-
-    await client.execute(\`
-      CREATE TABLE IF NOT EXISTS schedules (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        day_of_week INTEGER NOT NULL,
-        start_time TEXT NOT NULL,
-        end_time TEXT NOT NULL,
-        is_active INTEGER NOT NULL DEFAULT 1,
-        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-        UNIQUE(user_id, day_of_week)
-      );
-    \`);
-    console.log('- Таблица "schedules" создана.');
-
-    await client.execute(\`
-      CREATE TABLE IF NOT EXISTS bookings (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        service_id TEXT NOT NULL,
-        client_name TEXT NOT NULL,
-        client_email TEXT NOT NULL,
-        client_phone TEXT NOT NULL,
-        start_time TEXT NOT NULL,
-        end_time TEXT NOT NULL,
-        status TEXT NOT NULL DEFAULT 'pending',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-        FOREIGN KEY(service_id) REFERENCES services(id) ON DELETE CASCADE
-      );
-    \`);
-    console.log('- Таблица "bookings" создана.');
-
-    console.log('База данных успешно подготовлена к работе.');
-  } catch (error) {
-    console.error('Ошибка создания таблиц:', error);
-    process.exit(1);
-  } finally {
-    client.close();
+      json.regions = ["dub1"];
+      createBackup(VERCEL_JSON_PATH);
+      fs.writeFileSync(VERCEL_JSON_PATH, JSON.stringify(json, null, 2), 'utf8');
+      console.log(`[УСПЕШНО] Обновлен vercel.json с привязкой к региону 'dub1'.`);
+    } catch (error) {
+      console.log(`[ОШИБКА] Не удалось обработать существующий vercel.json (возможно невалидный JSON): ${error.message}`);
+    }
+  } else {
+    // Если файла нет — создаем новый
+    const newConfig = {
+      regions: ["dub1"]
+    };
+    fs.writeFileSync(VERCEL_JSON_PATH, JSON.stringify(newConfig, null, 2), 'utf8');
+    console.log(`[УСПЕШНО] Создан vercel.json с привязкой к региону 'dub1'.`);
   }
 }
 
-main();`;
-
-// Запись исправленного скрипта
-writeFile(filePath, initDbContent);
-
-// Принудительный запуск инициализации таблиц базы данных
+// === ЗАПУСК ===
+console.log('\n--- Запуск применения патчей ---');
 try {
-  console.log('\nЗапуск миграции базы данных...');
-  execSync('node scripts/init-db.js', { stdio: 'inherit' });
-  console.log('\n=== ПАТЧ V8 ЗАВЕРШЕН: ТАБЛИЦЫ УСПЕШНО СОЗДАНЫ ===\n');
-} catch (error) {
-  console.error('[FAIL] Не удалось автоматически запустить миграцию базы данных.', error);
+  patchDbIndex();
+  patchVercelJson();
+} catch (err) {
+  console.error(`[КРИТИЧЕСКАЯ ОШИБКА] Непредвиденный сбой скрипта: ${err.message}`);
 }
-
-function writeFile(filePath, content) {
-  const absolutePath = path.resolve(filePath);
-  const dir = path.dirname(absolutePath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  fs.writeFileSync(absolutePath, content, 'utf8');
-  console.log(`[FILE] Перезаписан скрипт: ${filePath}`);
-}
+console.log('--- Работа скрипта завершена ---\n');
